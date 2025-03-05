@@ -1,3 +1,7 @@
+openai
 fastapi
 uvicorn
+gspread
+oauth2client
+python-dotenv
 
