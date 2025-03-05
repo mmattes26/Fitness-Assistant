@@ -3,12 +3,12 @@ import os
 import re
 import gspread
 import json
-import uvicorn
 from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import uvicorn
 
 # Load environment variables
 load_dotenv()
@@ -120,4 +120,3 @@ def read_root():
 # Run the FastAPI app with Uvicorn
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
-
