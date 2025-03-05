@@ -1,5 +1,6 @@
-import openai
 import os
+import uvicorn
+import openai
 import re
 import gspread
 import json
@@ -8,10 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import uvicorn
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
 # Load environment variables
 load_dotenv()
 
@@ -23,7 +21,12 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-google_creds = json.loads(os.getenv("GOOGLE_SHEETS_CREDENTIALS"))
+google_creds = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
+
+if not google_creds:
+    raise ValueError("Missing Google Sheets credentials. Check your environment variables.")
+
+google_creds = json.loads(google_creds)
 creds = ServiceAccountCredentials.from_json_keyfile_dict(google_creds, scope)
 client_gspread = gspread.authorize(creds)
 sheet = client_gspread.open("AI Fitness Bot Workouts").sheet1
@@ -78,3 +81,13 @@ def log_workout(request: WorkoutLog):
         return {"message": "Workout logged successfully!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Health Check Route
+@app.get("/")
+def read_root():
+    return {"message": "API is running successfully!"}
+
+# Run the FastAPI app with Uvicorn
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+
